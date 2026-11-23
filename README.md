@@ -1,84 +1,40 @@
-##Customer Churn Prediction using Machine Learning
+# Customer Churn — Baseline and Signal Review
 
-Problem Statement
+A reproducible evaluation of the repository's existing 100,000-row subscription dataset. The business question is whether the available variables support useful churn ranking before considering a retention pilot.
 
-In today's competitive business landscape, customer retention is critical for long-term success. This project aims to develop a predictive machine learning model** that can identify customers who are at risk of churning — that is, leaving the service. Accurately identifying these high-risk customers enables businesses to implement targeted retention strategies, reduce churn rates, and increase overall customer satisfaction and loyalty.
+## Finding
 
- Dataset Description
+The current logistic-regression specification **does not outperform a no-signal baseline**. Holdout ROC AUC is **0.4958**, versus **0.5000** for the prior baseline; the paired bootstrap 95% interval is **0.4882–0.5044**. This is evidence to investigate the data and problem definition, not to deploy the classifier or claim reduced churn.
 
-The dataset includes customer information such as demographics, usage behavior, and billing details. Below are the key features:
+## Reproduce
 
-* `CustomerID`: Unique customer identifier
-* `Name`: Name of the customer
-* `Age`: Customer age
-* `Gender`: Male or Female
-* `Location`: City (e.g., Houston, Los Angeles, Miami, Chicago, New York)
-* `Subscription_Length_Months`: Duration of subscription
-* `Monthly_Bill`: Monthly charge
-* `Total_Usage_GB`: Total usage in gigabytes
-* `Churn`: Binary value (1 = churned, 0 = retained)
+Python 3.11+:
 
----
- Tech Stack & Tools Used
+```bash
+python -m pip install -r requirements.txt
+python -m unittest discover -s tests -v
+python evaluate.py
+```
 
-| Category                 | Tools/Technologies                                                                 |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| Programming Language     | Python                                                                             |
-| Data Manipulation        | Pandas, NumPy                                                                      |
-| Visualization            | Matplotlib, Seaborn                                                                |
-| IDE                      | Jupyter Notebook                                                                   |
-| Machine Learning         | Scikit-learn, XGBoost, TensorFlow, Keras                                           |
-| Algorithms               | Logistic Regression, Decision Tree, Random Forest, KNN, SVM, Naive Bayes, AdaBoost |
-| Deep Learning            | Neural Networks (Keras + TensorFlow)                                               |
-| Feature Scaling          | StandardScaler                                                                     |
-| Dimensionality Reduction | PCA                                                                                |
-| Model Tuning             | GridSearchCV, Cross-Validation, EarlyStopping, ModelCheckpoint                     |
-| Evaluation Metrics       | Accuracy, Precision, Recall, F1-Score, Confusion Matrix, ROC Curve, AUC            |
+`reports/metrics.json` records the source hash, split, feature list, training-only CV, holdout metrics and uncertainty. `reports/holdout_predictions.csv` uses anonymous source-row indices. `reports/tenure_cohorts.csv` provides descriptive rates, not causal effects.
 
-Machine Learning Workflow
+## Evaluation design
 
-1. Data Cleaning & Preprocessing
+- Fixed 80/20 stratified train/holdout split, seed 42.
+- Logistic regression with imputation and scaling inside the pipeline; five-fold training-only CV.
+- Probability-based ROC AUC and average precision; accuracy, precision, recall, F1 and explicitly named confusion-matrix cells at a fixed 0.5 threshold.
+- Features: subscription length, monthly bill and usage. Names, identifiers, age, gender and location are excluded.
+- 200 paired holdout bootstrap samples for an approximate ROC AUC interval. The interval does not cover dataset shift or every source of uncertainty.
+- Four automated checks verify source contract, probability-based AUC, confusion labels and no-positive-prediction behaviour.
 
-   * Null value handling
-   * Categorical encoding
-   * Feature scaling
-   * PCA for dimensionality reduction
+## Business interpretation
 
-2. Exploratory Data Analysis (EDA)
+Do not use this result to target real customers. First verify data provenance, label definition, timing, cancellation reasons and whether outcome-relevant features are available before the decision. A future pilot would need a prospective evaluation and a costed intervention; prediction alone cannot establish retention uplift.
 
-   * Univariate and bivariate plots
-   * Correlation matrix
-   * Churn distribution by demographic attributes
+## Dataset and legacy material
 
-3. Model Building
+The spreadsheet was already present in this repository. Its original provenance and reuse licence have not been established. No new licence or claim of real customer origin is made. Do not redistribute it outside the permissions applicable to the original dataset; use a verified licensed source for future extensions.
 
-   * Tried multiple classifiers: Logistic Regression, Decision Tree, Random Forest, KNN, SVM, Naive Bayes, Gradient Boosting, XGBoost
-   * Applied ensemble and deep learning approaches
+The original notebook and pickle are retained as historical work. The notebook contains older exploratory comparisons and machine-specific paths; it is not the validated evaluation entrypoint. The new workflow retrains from source and **does not load the legacy pickle**. Never load an untrusted pickle.
 
-4. Hyperparameter Tuning
-
-   * Used `GridSearchCV` for optimal parameter selection
-
-5. Model Evaluation
-
-   * Accuracy, F1-score, ROC-AUC, and confusion matrix used to select the best-performing model
-
-6. Model Interpretation
-
-   * Used `SHAP` and `VIF` to interpret model decisions and identify key features influencing churn
-
- Outcome
-
-The final model accurately predicts churn likelihood using customer demographics and usage patterns. It allows the business to:
-
-* Identify at-risk customers before they leave
-* Implement targeted offers and communication
-* Optimize customer service resources
-* Reduce churn rates and increase customer lifetime value
-
-Future Improvements
-
-* Deploy the model via Flask or Streamlit
-* Connect to real-time customer databases
-* Add automated alerts for high-risk users
-* Use LSTM/GRU models for temporal usage patterns.
+Results reproduced on 23 November 2026. No employer deployment, production readiness, or realised commercial improvement is claimed.

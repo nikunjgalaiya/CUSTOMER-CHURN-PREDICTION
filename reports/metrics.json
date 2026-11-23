@@ -1,0 +1,66 @@
+{
+  "source_sha256": "0d9053b88a21d26a48f8eed4dfc15d94bc4ddabbccb134a30d3c02295005685a",
+  "rows": 100000,
+  "train_rows": 80000,
+  "holdout_rows": 20000,
+  "features": [
+    "Subscription_Length_Months",
+    "Monthly_Bill",
+    "Total_Usage_GB"
+  ],
+  "excluded_fields": [
+    "CustomerID",
+    "Name",
+    "Age",
+    "Gender",
+    "Location"
+  ],
+  "split": {
+    "method": "stratified random holdout",
+    "test_fraction": 0.2,
+    "random_state": 42
+  },
+  "training_cv": {
+    "roc_auc_mean": 0.501109647423766,
+    "roc_auc_std": 0.00319614824798395,
+    "folds": 5
+  },
+  "holdout": {
+    "logistic_regression": {
+      "roc_auc": 0.49582902925000627,
+      "average_precision": 0.493556265296031,
+      "accuracy": 0.498,
+      "precision": 0.49223946784922396,
+      "recall": 0.2675773402973082,
+      "f1": 0.34669442998438316,
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "tn": 7296,
+        "fp": 2748,
+        "fn": 7292,
+        "tp": 2664
+      }
+    },
+    "prior_baseline": {
+      "roc_auc": 0.5,
+      "average_precision": 0.4978,
+      "accuracy": 0.5022,
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1": 0.0,
+      "threshold": 0.5,
+      "confusion_matrix": {
+        "tn": 10044,
+        "fp": 0,
+        "fn": 9956,
+        "tp": 0
+      }
+    }
+  },
+  "roc_auc_bootstrap_95_interval": [
+    0.48818214328504944,
+    0.5043995715740722
+  ],
+  "decision": "Evaluate against baseline and uncertainty before a retention pilot; no realised churn reduction is claimed",
+  "evidence_of_signal": false
+}
